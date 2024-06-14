@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  module:
+    restart: always
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - backend
+    environment:
+      PORT: "8080"
+    ports:
+      - "8080:8080"
+    links:
+      - db:db
+    depends_on:
+      - db
+  db:
+    restart: always
+    container_name: db
+    image: postgres:15.4-alpine3.18
+    ports:
+      - "5432:5432"
+    networks:
+      - backend
+    environment:
+      POSTGRES_PORT: ${DB_PORT}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME} 
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+volumes:
+  pgdata: {}
+
+networks:
+  backend:
+    driver: bridge
